@@ -5,7 +5,7 @@ class NeumorphicButton extends StatelessWidget {
       {this.width,
       this.height,
       this.text,
-      this.icon,
+      this.child,
       this.backgroundColor,
       this.borderRadius,
       this.onPressed});
@@ -14,35 +14,40 @@ class NeumorphicButton extends StatelessWidget {
   final double height;
   final double borderRadius;
   final Color backgroundColor;
-  final Icon icon;
+  final Widget child;
   final Text text;
   final GestureTapCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width ?? MediaQuery.of(context).size.width,
-      height: height,
-      decoration: BoxDecoration(
-          color: backgroundColor ?? Color(0xFFEAEBF3),
-          borderRadius: BorderRadius.all(Radius.circular(borderRadius ?? 15)),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.grey[500],
-                offset: Offset(4.0, 4.0),
-                blurRadius: 15.0,
-                spreadRadius: 1.0),
-            BoxShadow(
-                color: Colors.white,
-                offset: Offset(-4.0, -4.0),
-                blurRadius: 15.0,
-                spreadRadius: 1.0),
-          ]),
+    return GestureDetector(
+      onTap: () {
+        onPressed();
+      },
       child: Container(
-          child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [icon],
-      )),
+        width: width ?? MediaQuery.of(context).size.width,
+        height: height,
+        decoration: BoxDecoration(
+            color: backgroundColor ?? Color(0xFFEAEBF3),
+            borderRadius: BorderRadius.all(Radius.circular(borderRadius ?? 15)),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey[500],
+                  offset: Offset(4.0, 4.0),
+                  blurRadius: 15.0,
+                  spreadRadius: 1.0),
+              BoxShadow(
+                  color: Colors.white,
+                  offset: Offset(-4.0, -4.0),
+                  blurRadius: 15.0,
+                  spreadRadius: 1.0),
+            ]),
+        child: Container(
+            child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [child],
+        )),
+      ),
     );
   }
 }

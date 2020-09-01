@@ -42,7 +42,7 @@ class NeumorphicCalendar extends StatelessWidget {
                           color: Colors.grey[500],
                           offset: Offset(10.0, 10.0),
                           blurRadius: 15.0,
-                          spreadRadius: 1.0)
+                          spreadRadius: 1.0),
                     ],
                     borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(30),

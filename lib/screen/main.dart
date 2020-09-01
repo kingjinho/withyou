@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:withyou/screen/calendar.dart';
-import 'package:withyou/screen/settings.dart';
-import 'package:withyou/screen/home.dart';
+import 'package:withyou/screen/Calendar.dart';
+import 'package:withyou/screen/Settings.dart';
+import 'package:withyou/screen/Home.dart';
 
 class Main extends StatefulWidget {
   Main({Key key}) : super(key: key);
@@ -27,9 +27,8 @@ class _MainState extends State<Main> {
         controller: PageController(initialPage: 1),
         children: [Calendar(), Home(), Settings()],
         scrollDirection: Axis.horizontal,
-        onPageChanged: (value) => {_onPageChanged(value)},
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      /* bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Color.fromARGB(200, 255, 133, 133),
         selectedItemColor: Colors.white,
@@ -44,7 +43,7 @@ class _MainState extends State<Main> {
         showUnselectedLabels: false,
         showSelectedLabels: false,
         currentIndex: _selectedIndex,
-      ),
+      ), */
     );
   }
 }

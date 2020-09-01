@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:slider_button/slider_button.dart';
-import 'package:withyou/screen/main.dart';
+import 'package:withyou/screen/Main.dart';
+import 'package:withyou/shared/Colors.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,6 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         // This is the theme of your application.
         primarySwatch: Colors.blue,
+        primaryColor: colorNeuGrey,
         fontFamily: "DoHyeon",
         // This makes the visual density adapt to the platform that you run
         // the app on. For desktop platforms, the controls will be smaller and
@@ -94,6 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 radius: 70,
                 buttonSize: 70,
                 shimmer: false,
+                dismissible: false,
               ))
             ],
           ),
