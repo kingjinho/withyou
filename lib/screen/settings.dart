@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:store_redirect/store_redirect.dart';
 import 'package:withyou/component/dialog/WYSimpleDialog.dart';
-import 'package:withyou/screen/About.dart';
+import 'package:withyou/screen/about.dart';
 import 'package:withyou/shared/Colors.dart';
 
 class Settings extends StatelessWidget {

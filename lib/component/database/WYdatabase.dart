@@ -1,6 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:withyou/model/Info.dart';
+import 'package:withyou/model/info.dart';
 
 class WYDatabase {
   static Database database;
@@ -47,8 +47,8 @@ class WYDatabase {
   }
 
   static Future<int> insertProfile(Info info) async {
-    await database?.update("Info", info.toMap());
-    return 0;
+    int cntInserted = await database?.insert("Info", info.toMap());
+    return cntInserted;
   }
 
   static Future<int> deleteProfile() async {
@@ -56,7 +56,8 @@ class WYDatabase {
   }
 
   static Future<int> updateProfile(Info info) async {
-    return 0;
+    int cntUpdated = await database?.update("Info", info.toMap());
+    return cntUpdated;
   }
 
   static Future<int> deleteEvent() async {

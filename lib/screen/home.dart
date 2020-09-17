@@ -6,7 +6,7 @@ import 'package:withyou/component/NeumorphicBackground.dart';
 import 'package:withyou/component/NeumorphicButton.dart';
 import 'package:withyou/component/NeumorphicCalendar.dart';
 import 'package:withyou/component/database/WYdatabase.dart';
-import 'package:withyou/model/Info.dart';
+import 'package:withyou/model/info.dart';
 import 'package:withyou/shared/ButtonTypeEnum.dart';
 import 'package:withyou/shared/Colors.dart';
 
@@ -19,6 +19,7 @@ class _HomeState extends State<Home> {
   bool _isMyPictureSet = false;
   bool _isPartnerPicutreSet = false;
   bool _isStartingDateSet = false;
+  bool _isDbEmpty = false;
   String _upComingAnniversaryTitleText = "When Did It Begin?";
   String _upComingAnniversaryMonth = "Month";
   String _upComingAnniversaryDate = "Date";
@@ -36,7 +37,7 @@ class _HomeState extends State<Home> {
     if (selectedImage != null) {
       final _imagePath = selectedImage.path;
       _setImage(type, _imagePath);
-      await _updateOrInsertProfile();
+      _isDbEmpty = await _updateOrInsertProfile();
     }
   }
 
@@ -57,14 +58,13 @@ class _HomeState extends State<Home> {
   }
 
   Future<bool> _updateOrInsertProfile() async {
-    info = info ?? Info();
     info.myPicture = _isMyPictureSet ? _imageForMine.path : "";
     info.partnerPicture = _isPartnerPicutreSet ? _imageForPartner.path : "";
     info.startingDate = _isPartnerPicutreSet ? _startingDate : null;
 
-    return (_isMyPictureSet || _isPartnerPicutreSet || _isStartingDateSet)
-        ? await WYDatabase.updateProfile(info) > 0
-        : await WYDatabase.insertProfile(info) > 0;
+    return _isDbEmpty
+        ? await WYDatabase.insertProfile(info) > 0
+        : await WYDatabase.updateProfile(info) > 0;
   }
 
   Future<void> _retreiveInfo() async {
@@ -79,7 +79,10 @@ class _HomeState extends State<Home> {
         _isPartnerPicutreSet = info.partnerPicture.isNotEmpty;
         _isStartingDateSet = _startingDate != null;
       });
-    }
+    } else
+      info = Info();
+
+    _isDbEmpty = info == null;
   }
 
   Future _setStartingDate() async {
@@ -212,6 +215,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+
     return SafeArea(
         child: Container(
       padding: EdgeInsets.only(top: 16, left: 16, right: 16),

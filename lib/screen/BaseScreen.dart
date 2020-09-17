@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 abstract class BaseScreen extends StatelessWidget {
-  final bool isAndroid = Platform.isAndroid;
+  bool isAndroid = Platform.isAndroid;
   double deviceWidth;
   double deviceHeight;
 

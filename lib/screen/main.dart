@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:withyou/component/database/WYdatabase.dart';
-import 'package:withyou/screen/Calendar.dart';
-import 'package:withyou/screen/Settings.dart';
+import 'package:withyou/screen/calendar.dart';
+import 'package:withyou/screen/settings.dart';
 import 'package:withyou/screen/Home.dart';
 
 class Main extends StatefulWidget {
@@ -12,22 +11,17 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
-  /*  int _selectedIndex = 0;
+  int _selectedIndex = 0;
 
   void _onPageChanged(int index) {
     setState(() {
       _selectedIndex = index;
     });
-  } */
+  }
 
   @override
   void initState() {
     super.initState();
-    openDatabase();
-  }
-
-  void openDatabase() async {
-    WYDatabase.open();
   }
 
   @override

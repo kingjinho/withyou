@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:slider_button/slider_button.dart';
 import 'package:withyou/component/database/WYdatabase.dart';
-import 'package:withyou/screen/Main.dart';
+import 'package:withyou/screen/main.dart';
 import 'package:withyou/shared/Colors.dart';
 
 void main() => runApp(MyApp());
@@ -57,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    super.initState();
     WYDatabase.open();
   }
 

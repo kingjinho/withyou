@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:withyou/screen/BaseScreen.dart';
+import 'package:withyou/screen/baseScreen.dart';
 import 'package:withyou/shared/Colors.dart';
 
+// ignore: must_be_immutable
 class About extends BaseScreen {
   // About({Key key}) : super(key: key);
 
-  final defaultTitleStyle =
+  var defaultTitleStyle =
       TextStyle(color: colorNeuGrey, fontFamily: "DoHyeon", fontSize: 20);
 
-  final defaultContentStyle =
+  var defaultContentStyle =
       TextStyle(color: colorNeuGrey, fontSize: 16, fontFamily: "DoHyeon");
 
   @override
