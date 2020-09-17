@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:slider_button/slider_button.dart';
+import 'package:withyou/component/database/WYdatabase.dart';
 import 'package:withyou/screen/Main.dart';
 import 'package:withyou/shared/Colors.dart';
 
@@ -52,6 +53,11 @@ class _MyHomePageState extends State<MyHomePage> {
         MaterialPageRoute(
           builder: (context) => Main(),
         ));
+  }
+
+  @override
+  void initState() {
+    WYDatabase.open();
   }
 
   @override
