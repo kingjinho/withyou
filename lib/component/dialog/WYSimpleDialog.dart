@@ -11,8 +11,9 @@ class WYSimpleDialog {
   static bool shouldShowYesOrNo;
   static String positiveBtnText;
   static String negativeBtnText;
+  static TextEditingController _textEditingController = TextEditingController();
 
-  static Future<bool> show(
+  static Future<T> show<T>(
       BuildContext buildContext,
       DialogType dlgType,
       String title,
@@ -24,48 +25,55 @@ class WYSimpleDialog {
     type = dlgType;
     titleText = title;
     contentText = content;
-    shouldShowYesOrNo = shouldShowYesOrNo;
+    shouldShowYesOrNo = showYesOrNo;
     positiveBtnText = positiveBtnTitle ?? "Ok";
     negativeBtnText = negativeBtnTitle ?? "No";
 
+    _textEditingController.clear();
+
     return Platform.isIOS
-        ? await openDialogForIOS()
-        : await openDialogForAndroid();
+        ? await openDialogForIOS<T>()
+        : await openDialogForAndroid<T>();
   }
 
-  static Future<bool> openDialogForAndroid() async {
+  static Future<T> openDialogForAndroid<T>() async {
     AlertDialog dlg = AlertDialog(
       title: Text(titleText),
-      content: Text(contentText),
+      content: type == DialogType.textInput
+          ? TextFormField(
+              controller: _textEditingController,
+              maxLength: 20,
+              validator: (value) {
+                if (value.isEmpty) return 'should type something';
+                return null;
+              },
+            )
+          : Text(contentText),
       actions: _getButtonsForAndroid(),
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(15.0))),
     );
 
-    return await showDialog<bool>(
+    return await showDialog<T>(
         context: context, barrierDismissible: true, builder: (_) => dlg);
   }
 
-  static Future<bool> openDialogForIOS() async {
+  static Future<T> openDialogForIOS<T>() async {
     CupertinoAlertDialog dlg = CupertinoAlertDialog(
       title: Text(titleText),
-      content: Text(contentText),
-      actions: [
-        CupertinoDialogAction(
-          child: Text(negativeBtnText),
-          onPressed: () {
-            Navigator.pop(context, false);
-          },
-        ),
-        CupertinoDialogAction(
-          onPressed: () {
-            Navigator.pop(context, true);
-          },
-          child: Text(positiveBtnText),
-        )
-      ],
+      content: type == DialogType.textInput
+          ? TextFormField(
+              controller: _textEditingController,
+              maxLength: 30,
+              validator: (value) {
+                if (value.isEmpty) return 'should type something';
+                return null;
+              },
+            )
+          : Text(contentText),
+      actions: _getButtonsForIOS(),
     );
-    return showCupertinoDialog<bool>(
+    return showCupertinoDialog<T>(
       context: context,
       builder: (_) => dlg,
       barrierDismissible: true,
@@ -74,20 +82,27 @@ class WYSimpleDialog {
 
   static List<Widget> _getButtonsForAndroid() {
     List<Widget> buttons = List();
-
     if (type == DialogType.yesOrNo) {
       buttons.add(FlatButton(
           onPressed: () {
-            Navigator.pop(context, false);
+            Navigator.pop(
+                context,
+                type == DialogType.textInput
+                    ? _textEditingController.text.toString()
+                    : false);
           },
           child: Text(negativeBtnText)));
-    } else {
-      buttons.add(FlatButton(
-          onPressed: () {
-            Navigator.pop(context, true);
-          },
-          child: Text(positiveBtnText)));
     }
+    buttons.add(FlatButton(
+        onPressed: () {
+          Navigator.pop(
+              context,
+              type == DialogType.textInput
+                  ? _textEditingController.text.toString()
+                  : false);
+        },
+        child: Text(positiveBtnText)));
+
     return buttons;
   }
 
@@ -98,19 +113,27 @@ class WYSimpleDialog {
       buttons.add(CupertinoDialogAction(
         child: Text(negativeBtnText),
         onPressed: () {
-          Navigator.pop(context, false);
-        },
-      ));
-    } else {
-      buttons.add(CupertinoDialogAction(
-        child: Text(positiveBtnText),
-        onPressed: () {
-          Navigator.pop(context, false);
+          Navigator.pop(
+              context,
+              type == DialogType.textInput
+                  ? _textEditingController.text.toString()
+                  : false);
         },
       ));
     }
+    buttons.add(CupertinoDialogAction(
+      child: Text(positiveBtnText),
+      onPressed: () {
+        Navigator.pop(
+            context,
+            type == DialogType.textInput
+                ? _textEditingController.text.toString()
+                : true);
+      },
+    ));
+
     return buttons;
   }
 }
 
-enum DialogType { about, info, warning, yesOrNo }
+enum DialogType { about, info, warning, yesOrNo, textInput }
