@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:withyou/component/NeumorphicBackground.dart';
 import 'package:withyou/component/NeumorphicButton.dart';
 import 'package:withyou/component/NeumorphicCalendar.dart';
+import 'package:withyou/component/database/WYdatabase.dart';
+import 'package:withyou/model/Info.dart';
 import 'package:withyou/shared/ButtonTypeEnum.dart';
 import 'package:withyou/shared/Colors.dart';
 
@@ -23,29 +25,64 @@ class _HomeState extends State<Home> {
   File _imageForMine;
   File _imageForPartner;
   DateTime _startingDate;
+  Info info;
   // BuildContext _context;
   final _imagePicker = ImagePicker();
 
-  Future selectImage(ButtonType type) async {
-    final pickedFile = await _imagePicker.getImage(source: ImageSource.gallery);
+  Future<void> selectImage(ButtonType type) async {
+    final selectedImage =
+        await _imagePicker.getImage(source: ImageSource.gallery);
 
+    if (selectedImage != null) {
+      final _imagePath = selectedImage.path;
+      _setImage(type, _imagePath);
+      await _updateOrInsertProfile();
+    }
+  }
+
+  File _getImage(ButtonType type) {
+    return type == ButtonType.mine ? _imageForMine : _imageForPartner;
+  }
+
+  void _setImage(ButtonType type, String imagePath) {
     setState(() {
       if (type == ButtonType.mine) {
         _isMyPictureSet = true;
-        _imageForMine = File(pickedFile.path);
-      }
-      if (type == ButtonType.partner) {
+        _imageForMine = File(imagePath);
+      } else {
         _isPartnerPicutreSet = true;
-        _imageForPartner = File(pickedFile.path);
+        _imageForPartner = File(imagePath);
       }
     });
   }
 
-  File getImage(ButtonType type) {
-    return type == ButtonType.mine ? _imageForMine : _imageForPartner;
+  Future<bool> _updateOrInsertProfile() async {
+    info = info ?? Info();
+    info.myPicture = _isMyPictureSet ? _imageForMine.path : "";
+    info.partnerPicture = _isPartnerPicutreSet ? _imageForPartner.path : "";
+    info.startingDate = _isPartnerPicutreSet ? _startingDate : null;
+
+    return (_isMyPictureSet || _isPartnerPicutreSet || _isStartingDateSet)
+        ? await WYDatabase.updateProfile(info) > 0
+        : await WYDatabase.insertProfile(info) > 0;
   }
 
-  Future setStartingDate() async {
+  Future<void> _retreiveInfo() async {
+    info = await WYDatabase.getInfo();
+    if (info != null) {
+      setState(() {
+        _imageForMine = File(info.myPicture);
+        _imageForPartner = File(info.partnerPicture);
+        _startingDate = info.startingDate;
+
+        _isMyPictureSet = info.myPicture.isNotEmpty;
+        _isPartnerPicutreSet = info.partnerPicture.isNotEmpty;
+        _isStartingDateSet = _startingDate != null;
+      });
+    }
+  }
+
+  Future _setStartingDate() async {
     final startingDate = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
@@ -56,9 +93,10 @@ class _HomeState extends State<Home> {
       _startingDate = startingDate;
       _isStartingDateSet = _startingDate != null;
     });
+    await _updateOrInsertProfile();
   }
 
-  Widget _loadMyPicture() => _isMyPictureSet
+  Widget _drawMyPicture() => _isMyPictureSet
       ? GestureDetector(
           onTap: () {
             selectImage(ButtonType.mine);
@@ -68,7 +106,7 @@ class _HomeState extends State<Home> {
             height: 100,
             decoration: BoxDecoration(
                 image: DecorationImage(
-                    image: FileImage(getImage(ButtonType.mine)),
+                    image: FileImage(_getImage(ButtonType.mine)),
                     fit: BoxFit.cover),
                 borderRadius: BorderRadius.all(Radius.circular(15)),
                 boxShadow: []),
@@ -96,7 +134,7 @@ class _HomeState extends State<Home> {
           ],
         );
 
-  Widget _loadPartnerPicture() => _isPartnerPicutreSet
+  Widget _drawPartnerPicture() => _isPartnerPicutreSet
       ? GestureDetector(
           onTap: () {
             selectImage(ButtonType.partner);
@@ -106,7 +144,7 @@ class _HomeState extends State<Home> {
             height: 100,
             decoration: BoxDecoration(
                 image: DecorationImage(
-                    image: FileImage(getImage(ButtonType.partner)),
+                    image: FileImage(_getImage(ButtonType.partner)),
                     fit: BoxFit.cover),
                 borderRadius: BorderRadius.all(Radius.circular(15)),
                 boxShadow: []),
@@ -134,12 +172,12 @@ class _HomeState extends State<Home> {
           ],
         );
 
-  Widget _loadStartingDate() => Align(
+  Widget _drawStartingDate() => Align(
         alignment: Alignment.topCenter,
         child: NeumorphicButton(
           height: 120,
           onPressed: () {
-            setStartingDate();
+            _setStartingDate();
           },
           child: _isStartingDateSet
               ? RichText(
@@ -160,25 +198,15 @@ class _HomeState extends State<Home> {
                 ),
           backgroundColor: Color(0xFFEAEBF3),
         ),
-      )
-      /* : Align(
-          alignment: Alignment.topCenter,
-          child: NeumorphicButton(
-            height: 120,
-            onPressed: () {
-              setStartingDate();
-            },
-            icon: Icon(
-              Icons.add,
-              color: Color(0xff545454),
-              size: 64,
-            ),
-            backgroundColor: Color(0xFFEAEBF3),
-          ),
-        ) */
-      ;
+      );
 
-  void _loadUpcomingAnniversary() {}
+  /* void _loadUpcomingAnniversary() {} */
+
+  @override
+  void initState() {
+    super.initState();
+    _retreiveInfo();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -206,7 +234,7 @@ class _HomeState extends State<Home> {
                               child: Text(
                                 _upComingAnniversaryTitleText,
                                 style: TextStyle(
-                                    fontSize: 48,
+                                    fontSize: 40,
                                     fontWeight: FontWeight.w600,
                                     color: colorNeuGrey),
                               ))),
@@ -216,8 +244,9 @@ class _HomeState extends State<Home> {
                             width: width * .5,
                             child: NeumorphicCalendar(
                                 width * .5,
-                                width * .5,
-                                Color(0xFFEAEBF3),
+                                width * .48,
+                                colorNeuPink,
+                                colorNeuWhite,
                                 Text(_upComingAnniversaryMonth,
                                     style: TextStyle(
                                         fontSize: 32,
@@ -228,7 +257,8 @@ class _HomeState extends State<Home> {
                                       fontSize: 48, color: Color(0xff545454)),
                                 ),
                                 1,
-                                3),
+                                3,
+                                30),
                           ))
                     ],
                   )
@@ -243,7 +273,7 @@ class _HomeState extends State<Home> {
                   children: [
                     Flexible(
                       flex: 1,
-                      child: _loadMyPicture(),
+                      child: _drawMyPicture(),
                     ),
                     Flexible(
                         flex: 1,
@@ -253,7 +283,7 @@ class _HomeState extends State<Home> {
                           width: 80,
                           height: 80,
                         ))),
-                    Flexible(flex: 1, child: _loadPartnerPicture())
+                    Flexible(flex: 1, child: _drawPartnerPicture())
                   ],
                 ),
               )),
@@ -272,7 +302,7 @@ class _HomeState extends State<Home> {
                           style: TextStyle(fontSize: 32, color: colorNeuGrey),
                         )),
                     Flexible(
-                        flex: 3, child: Container(child: _loadStartingDate()))
+                        flex: 3, child: Container(child: _drawStartingDate()))
                   ],
                 ),
               ))
